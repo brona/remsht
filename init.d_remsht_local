@@ -1,0 +1,70 @@
+#!/bin/bash
+#
+# Init file for remsht_local
+#
+# chkconfig: 2345 55 25
+# description: remsht_local daemon
+
+SERLINE="/dev/ttyS0"
+
+PIDFILE="/var/run/remsht.pid"
+LOGFILE="/var/log/remsht.log"
+
+GAWK="/usr/bin/gawk -f"
+REMSHT_LOCAL="/usr/local/sbin/remsht_local.gawk"
+
+log() {
+  echo $1
+  echo $1 >> $LOGFILE
+}
+
+case "$1" in
+  start)
+    pid=`cat $PIDFILE 2>/dev/null`
+    if [ $? -eq 0 ]; then
+      ps -o pid= -p $pid > /dev/null 2>&1 && echo "REMSTH_LOCAL is
+already running" && exit 1
+    fi
+    log "Starting REMSHT_LOCAL ($SERLINE)..."
+
+    (cat $SERLINE <&- | $GAWK $REMSHT_LOCAL >>$LOGFILE 2>&1) &
+
+    pid=$!
+    echo $pid > $PIDFILE
+    log "Started REMSHT_LOCAL with pid $pid."
+    ;;
+  stop)
+    pid=`cat $PIDFILE 2>/dev/null`
+    if [ $? -eq  0 ] ; then
+      ps -o pid= -p $pid 2>&1 > /dev/null
+      if [ $? -eq 0 ] ; then
+  PGID=$(ps opgid= "$pid" | grep [0-9] | tr -d ' ')
+        kill -- -"$PGID"
+        log "Stopped REMSHT_LOCAL"
+        [ -f "$PIDFILE" ] && rm $PIDFILE
+        exit 0
+      fi
+    fi
+    echo "Nothing to stop"
+    exit 1
+    ;;
+  status)
+    pid=`cat $PIDFILE 2>/dev/null`
+    if [ $? -eq  0 ] ; then
+      ps -o pid= -p $pid 2>&1 > /dev/null
+      if [ $? -eq 0 ] ; then
+  echo "REMSHT_LOCAL is running"
+  exit 0
+      fi
+    fi
+    echo "REMSHT_LOCAL is stopped"
+    [ -f "$PIDFILE" ] && rm $PIDFILE
+    exit 1
+    ;;
+  *)
+    echo "Usage: /etc/init.d/remsht_local {start|stop|status}"
+    exit 1
+    ;;
+esac
+
+exit 0

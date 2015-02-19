@@ -1,0 +1,20 @@
+#!/bin/bash
+# 2015 Bronislav Robenek <brona@robenek.me>
+
+# Configuration
+secret="Password123"
+serline="/dev/ttyS0"
+
+if [ $# -eq 0 ]; then
+  cmd="shutdown"
+else
+  cmd="$1"
+fi
+
+# Do not touch this
+timestamp=$(date +"%s")
+timestamp=1000
+msg="$timestamp;$cmd"
+digest=$(echo "$msg" | openssl sha1 -hmac "$secret")
+#echo "$msg;$digest"
+echo "$msg;$digest" > $serline

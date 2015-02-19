@@ -1,0 +1,7 @@
+/var/log/remsht.log {
+    copytruncate
+    missingok
+    notifempty
+    size 100k
+    rotate 4
+}
