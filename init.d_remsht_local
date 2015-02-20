@@ -26,7 +26,8 @@ case "$1" in
 already running" && exit 1
     fi
     log "Starting REMSHT_LOCAL ($SERLINE)..."
-
+    
+    stty sane
     (cat $SERLINE <&- | $GAWK $REMSHT_LOCAL >>$LOGFILE 2>&1) &
 
     pid=$!
