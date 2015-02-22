@@ -14,7 +14,6 @@ fi
 # Do not touch this
 stty sane
 timestamp=$(date +"%s")
-timestamp=1000
 msg="$timestamp;$cmd"
 digest=$(echo "$msg" | openssl sha1 -hmac "$secret")
 #echo "$msg;$digest"
